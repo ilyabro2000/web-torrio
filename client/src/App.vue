@@ -1,7 +1,7 @@
 <template>
   <form
     @submit.prevent
-    @submit="onFileSubmit"
+    @submit="upload"
   >
     <input
       type="file"
@@ -30,8 +30,17 @@ export default {
         if (!files.length) return;
       this.file = files[0];
     },
-    onFileSubmit() {
-      axios.post(`http://${config.host}:${config.port}/load_torrent`, { file: this.file });
+    upload() {
+      const formData = new FormData();
+      formData.append('file', this.file);
+      axios({
+        method: "post",
+        url: `http://${config.host}:${config.port}/load_torrent`,
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error));
     }
   },
 }

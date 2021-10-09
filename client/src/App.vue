@@ -1,17 +1,23 @@
 <template>
-  <form
-    @submit.prevent
-    @submit="upload"
-  >
-    <input
-      type="file"
-      enctype="multipart/form-data"
-      @change="onFileChange"
-    />
-    <button type="submit">
-      upload
-    </button>
-  </form>
+  <div class="form-wrapper">
+    <form
+      @submit.prevent
+      @submit="upload"
+    >
+      <input
+        type="file"
+        enctype="multipart/form-data"
+        @change="onFileChange"
+        id="input__file"
+      />
+      <label for="input__file">
+        <p>Open torrent file</p>
+      </label>
+      <button type="submit">
+        upload
+      </button>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -43,9 +49,69 @@ export default {
         .catch((error) => console.log(error));
     }
   },
+  created() {
+    const socket = new WebSocket(`ws://${config.host}:${config.port}/ws`);
+    socket.onopen = function(e) {
+      console.log('opened', e);
+    };
+    socket.onerror = function(error) {
+      console.log(`error: ${error.message}`);
+    };
+  },
 }
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css?family=Lato");
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Lato, Arial; 
+    box-sizing: border-box;
+}
+
+.form-wrapper {
+  width: 300px;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  width: 100%;
+  margin: 15px 0;
+  text-align: center;
+}
+
+input {
+  opacity: 0;
+  position: absolute;
+  cursor: pointer;
+}
+
+label {
+  width: 100%;
+  max-width: 290px;
+  height: 35px;
+  background: #1bbc9b;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+p {
+  line-height: 1;
+  margin-top: 1px;
+}
+
+button {
+  width: 40px;
+  background: #1bbc9b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
 
 </style>

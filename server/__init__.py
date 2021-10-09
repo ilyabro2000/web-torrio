@@ -1,22 +1,32 @@
+import hashlib
+
+import aiohttp_cors  # type: ignore[import]
+
 from aiohttp import web
 
 
 async def load_torrent(request: web.Request) -> web.Response:
-    print(request.headers)
     data = await request.post()
-    torrent_file_data = data["torrent_file"]
+    torrent_file = data["file"]
     return web.json_response({
         "status": "ok",
-        "filename": torrent_file_data.filename,  # type: ignore [union-attr]
-        "length": len(torrent_file_data.file.read())  # type:  ignore [union-attr]
+        "hash": hashlib.sha1(torrent_file.file.read()).hexdigest()  # type: ignore[union-attr]
     })
 
 
 app = web.Application()
+app.router.add_post("/load_torrent", load_torrent)
 
-app.add_routes([
-    web.post("/load_torrent", load_torrent)
-])
+cors_options = {
+    "*": aiohttp_cors.ResourceOptions(
+        allow_credentials=True,
+        expose_headers="*",
+        allow_headers="*",
+    )
+}
+cors = aiohttp_cors.setup(app, defaults=cors_options)
+for route in app.router.routes():
+    cors.add(route)
 
 
 def run() -> None:

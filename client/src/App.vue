@@ -9,11 +9,12 @@
         enctype="multipart/form-data"
         @change="onFileChange"
         id="input__file"
+        class="input__file-button"
       />
       <label for="input__file">
         <p>Open torrent file</p>
       </label>
-      <button type="submit">
+      <button type="submit" class="input__file-button">
         upload
       </button>
     </form>
@@ -56,6 +57,9 @@ export default {
     };
     socket.onerror = function(error) {
       console.log(`error: ${error.message}`);
+    };
+    socket.onmessage = function(event) {
+      console.log(event.data);
     };
   },
 }

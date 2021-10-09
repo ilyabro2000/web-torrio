@@ -1,4 +1,5 @@
 import hashlib
+import asyncio
 
 import aiohttp_cors  # type: ignore[import]
 
@@ -10,11 +11,25 @@ async def load_torrent(request: web.Request) -> web.Response:
     torrent_file = data["file"]
     return web.json_response({
         "status": "ok",
-        "hash": hashlib.sha1(torrent_file.file.read()).hexdigest()  # type: ignore[union-attr]
+        "hash": hashlib.sha1(
+            torrent_file.file.read()).hexdigest()  # type: ignore[union-attr]
     })
 
 
+async def state_upload(request: web.Request) -> web.WebSocketResponse:
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    try:
+        while True:
+            await ws.send_json({"hash": "some_hash"})
+            await asyncio.sleep(1)
+    finally:
+        return ws
+
+
 app = web.Application()
+app.router.add_get("/ws", state_upload)
 app.router.add_post("/load_torrent", load_torrent)
 
 cors_options = {
